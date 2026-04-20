@@ -15,6 +15,14 @@ resource "aws_s3_bucket_versioning" "this" {
   versioning_configuration { status = "Enabled" }
 }
 
+resource "aws_s3_bucket_public_access_block" "this" {
+  bucket                  = aws_s3_bucket.this.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
 resource "aws_cloudfront_origin_access_control" "this" {
   name                              = var.name
   origin_access_control_origin_type = "s3"
@@ -54,5 +62,43 @@ resource "aws_cloudfront_distribution" "this" {
     geo_restriction { restriction_type = "none" }
   }
 
+  dynamic "custom_error_response" {
+    for_each = var.spa_fallback ? [403, 404] : []
+    content {
+      error_code            = custom_error_response.value
+      response_code         = 200
+      response_page_path    = "/index.html"
+      error_caching_min_ttl = 10
+    }
+  }
+
   tags = { Env = var.env }
+}
+
+# OAC requires a bucket policy granting the distribution s3:GetObject
+data "aws_iam_policy_document" "bucket" {
+  statement {
+    sid       = "AllowCloudFrontServicePrincipalReadOnly"
+    effect    = "Allow"
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.this.arn}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.this.arn]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "this" {
+  bucket = aws_s3_bucket.this.id
+  policy = data.aws_iam_policy_document.bucket.json
+
+  depends_on = [aws_s3_bucket_public_access_block.this]
 }

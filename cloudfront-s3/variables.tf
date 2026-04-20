@@ -14,3 +14,8 @@ variable "aliases" {
 variable "env" {
   type = string
 }
+variable "spa_fallback" {
+  description = "Rewrite 403/404 to /index.html with 200 — for single-page / client-routed apps"
+  type        = bool
+  default     = false
+}
