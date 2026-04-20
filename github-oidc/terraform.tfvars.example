@@ -1,0 +1,9 @@
+github_org   = "my-org"
+github_repos = ["web-app", "api-service"]
+role_name    = "github-actions-role"
+policy_arns  = [
+  "arn:aws:iam::aws:policy/AdministratorAccess",
+]
+tags = {
+  ManagedBy = "terraform"
+}
