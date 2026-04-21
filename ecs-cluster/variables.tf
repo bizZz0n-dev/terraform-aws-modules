@@ -4,6 +4,12 @@ variable "cluster_name" {
 }
 
 variable "env" {
-  description = "Environment tag"
+  description = "Environment name (e.g. staging, production)"
   type        = string
+}
+
+variable "tags" {
+  description = "Additional tags to apply to all resources"
+  type        = map(string)
+  default     = {}
 }

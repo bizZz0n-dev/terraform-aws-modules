@@ -13,7 +13,7 @@ resource "aws_ecs_cluster" "this" {
     value = "enabled"
   }
 
-  tags = { Name = var.cluster_name, Env = var.env }
+  tags = merge({ Name = var.cluster_name, Env = var.env }, var.tags)
 }
 
 resource "aws_ecs_cluster_capacity_providers" "this" {
