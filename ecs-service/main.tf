@@ -59,8 +59,8 @@ resource "aws_ecs_task_definition" "this" {
   family                   = var.service_name
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = tostring(var.cpu)
-  memory                   = tostring(var.memory)
+  cpu                      = var.cpu
+  memory                   = var.memory
   execution_role_arn       = aws_iam_role.execution.arn
 
   runtime_platform {
