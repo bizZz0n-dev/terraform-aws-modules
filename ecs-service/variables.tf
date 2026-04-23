@@ -13,9 +13,15 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "private_subnet_ids" {
-  description = "Private subnet IDs for ECS tasks"
+variable "subnet_ids" {
+  description = "Subnet IDs for ECS tasks. Use public subnets with assign_public_ip=true when there is no NAT/VPC endpoints, otherwise private subnets."
   type        = list(string)
+}
+
+variable "assign_public_ip" {
+  description = "Whether Fargate tasks get a public IP. Required true when tasks run in public subnets without NAT gateway."
+  type        = bool
+  default     = false
 }
 
 variable "target_group_arn" {
